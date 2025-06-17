@@ -1,0 +1,49 @@
+# Build artifacts
+build/
+*.o
+*.so
+*.a
+*.exe
+
+# Git
+.git/
+.gitignore
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+
+# Documentation
+README.md
+*.md
+
+# Docker files (except Dockerfile)
+docker-compose.yml
+.dockerignore
+
+# Database files
+*.db
+*.sqlite
+
+# Uploads (will be created at runtime)
+uploads/tmp/*/
+
+# CMake cache
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake 

@@ -1,0 +1,13 @@
+{
+  "rdbms": "postgresql",
+  "host": "127.0.0.1",
+  "port": 8000,
+  "dbname": "userdb",
+  "user": "postgres",
+  "passwd": "postgres",
+  "tables": ["users"],
+  "relationships": {
+      "enabled": false,
+      "items": []
+  }
+}

@@ -1,0 +1,19 @@
+{
+    "listeners": [
+      {
+        "address": "0.0.0.0",
+        "port": 3000
+      }
+    ],
+    "db_clients": [
+      {
+        "rdbms": "postgresql",
+        "host": "127.0.0.1",
+        "port": 8000,
+        "dbname": "userdb",
+        "user": "postgres",
+        "password": "postgres",
+        "is_fast": false
+      }
+    ]
+  }

@@ -4,12 +4,18 @@ project(my_drogon_app)
 set(CMAKE_CXX_STANDARD 17)
 set(DROGON_ENABLE_ORM ON)
 
+add_subdirectory(dependencies/cpp-jwt)
 find_package(Drogon REQUIRED)
+
 add_executable(${PROJECT_NAME}
     main.cc
     controllers/api_v1_User.cc
     models/Users.cc
     utils/
+    dependencies/cpp-jwt
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Drogon::Drogon)
+target_link_libraries(${PROJECT_NAME}
+    PRIVATE Drogon::Drogon
+    PRIVATE cpp-jwt::cpp-jwt
+)

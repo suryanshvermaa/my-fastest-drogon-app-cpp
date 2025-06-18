@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres
+    container_name: postgres_prod
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-userdb}
+    ports:
+      - "5000:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql

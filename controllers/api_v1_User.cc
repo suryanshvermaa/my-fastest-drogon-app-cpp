@@ -1,7 +1,10 @@
 #include "api_v1_User.h"
 #include<drogon/orm/DbClient.h>
 #include"../models/Users.h"
+#include"jwt/jwt.hpp"
+#include <iostream>
 
+using namespace jwt::params;
 using namespace api::v1;
 using namespace drogon_model::userdb;
 using namespace std;
@@ -36,6 +39,7 @@ void User::signup(const HttpRequestPtr& req, std::function<void (const HttpRespo
             Json::Value res;
             res["message"]="All fields are required";
             res["success"]=false;
+            
             auto resp=HttpResponse::newHttpJsonResponse(res);
             resp->setStatusCode(k400BadRequest);
             callback(resp);
@@ -53,6 +57,11 @@ void User::signup(const HttpRequestPtr& req, std::function<void (const HttpRespo
             json["name"] = insertedUser.getValueOfName();
             json["email"] = insertedUser.getValueOfEmail();
             json["password"] = insertedUser.getValueOfPassword();
+            jwt::jwt_object obj({algorithm("HS256"), secret("secret")});
+            obj.add_claim("iss", "arun.muralidharan")
+            .add_claim("exp", std::chrono::system_clock::now() - std::chrono::seconds{1});
+            auto enc_str = obj.signature();
+            json["token"]=enc_str;
             auto resp = HttpResponse::newHttpJsonResponse(json);
             resp->setStatusCode(k201Created);
             callback(resp);

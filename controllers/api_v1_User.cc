@@ -3,6 +3,7 @@
 #include"../models/Users.h"
 #include"jwt/jwt.hpp"
 #include <iostream>
+#include"bcrypt.h"
 
 using namespace jwt::params;
 using namespace api::v1;
@@ -62,6 +63,8 @@ void User::signup(const HttpRequestPtr& req, std::function<void (const HttpRespo
             .add_claim("exp", std::chrono::system_clock::now() - std::chrono::seconds{1});
             auto enc_str = obj.signature();
             json["token"]=enc_str;
+            auto hashedPassword=bcrypt::generateHash(insertedUser.getValueOfPassword(),5);
+            json["hashedPassword"]=hashedPassword;
             auto resp = HttpResponse::newHttpJsonResponse(json);
             resp->setStatusCode(k201Created);
             callback(resp);

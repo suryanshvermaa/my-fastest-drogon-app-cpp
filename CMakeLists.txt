@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(DROGON_ENABLE_ORM ON)
 
 add_subdirectory(dependencies/cpp-jwt)
+add_subdirectory(dependencies/Bcrypt)
 find_package(Drogon REQUIRED)
 
 add_executable(${PROJECT_NAME}
@@ -13,9 +14,13 @@ add_executable(${PROJECT_NAME}
     models/Users.cc
     utils/
     dependencies/cpp-jwt
+    dependencies/Bcrypt
+    test.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE Drogon::Drogon
     PRIVATE cpp-jwt::cpp-jwt
+    PRIVATE bcrypt
 )
+add_compile_options(-Wno-deprecated-declarations)

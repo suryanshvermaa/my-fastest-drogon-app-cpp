@@ -4,22 +4,15 @@
 
 using namespace drogon;
 
-namespace ResponseHelper {
-
-inline HttpResponsePtr success(const Json::Value &data = Json::Value{}) {
-    Json::Value res;
-    res["success"] = true;
-    res["data"] = data;
-    return HttpResponse::newHttpJsonResponse(res);
-}
-
-inline HttpResponsePtr error(const std::string &message, int code = 400) {
-    Json::Value res;
-    res["success"] = false;
-    res["message"] = message;
-    auto resp = HttpResponse::newHttpJsonResponse(res);
-    resp->setStatusCode(static_cast<HttpStatusCode>(code));
-    return resp;
-}
-
+namespace Response {
+    void response(std::function<void (const HttpResponsePtr &)> &&callback,drogon::HttpStatusCode statusCode,std::string &message,const Json::Value &data) {
+        Json::Value response;
+        response["success"]=true;
+        response["message"]=message;
+        response["data"] = data;
+        auto res = HttpResponse::newHttpJsonResponse(response);
+        res->setStatusCode(statusCode);
+        callback(res);
+        return;
+    }
 }

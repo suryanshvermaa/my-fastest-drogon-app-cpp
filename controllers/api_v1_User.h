@@ -15,12 +15,13 @@ class User : public drogon::HttpController<User>
   public:
     METHOD_LIST_BEGIN
     METHOD_ADD(User::signup, "/signup", Post); // path is /api/v1/User/signup
-    METHOD_ADD(User::getUsers, "/getUsers", Get); // path is /api/v1/User/getUsers
+    METHOD_ADD(User::login, "/login", Post); // path is /api/v1/User/login
+    METHOD_ADD(User::profile, "/profile", Get,"auth"); // path is /api/v1/User/profile
     METHOD_LIST_END
-    // your declaration of processing function maybe like this:
+    
     void signup(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback);
-    void getUsers(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback) const;
-    // void your_method_name(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, double p1, int p2) const;
+    void login(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback);
+    void profile(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback);
 };
 }
 }

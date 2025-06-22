@@ -4,7 +4,7 @@ project(my_drogon_app)
 set(CMAKE_CXX_STANDARD 17)
 set(DROGON_ENABLE_ORM ON)
 
-add_subdirectory(dependencies/cpp-jwt)
+add_subdirectory(dependencies/jwt-cpp)
 add_subdirectory(dependencies/Bcrypt)
 find_package(Drogon REQUIRED)
 
@@ -13,14 +13,16 @@ add_executable(${PROJECT_NAME}
     controllers/api_v1_User.cc
     models/Users.cc
     utils/
-    dependencies/cpp-jwt
+    dependencies/jwt-cpp
     dependencies/Bcrypt
-    test.cpp
+    filters/auth.cc
+    utils/AppError.cc
+    utils/token.cc
 )
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE Drogon::Drogon
-    PRIVATE cpp-jwt::cpp-jwt
+    PRIVATE jwt-cpp::jwt-cpp
     PRIVATE bcrypt
 )
 add_compile_options(-Wno-deprecated-declarations)

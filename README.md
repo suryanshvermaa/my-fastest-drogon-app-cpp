@@ -101,23 +101,60 @@ sudo make install
 
 ```
 my-drogon-app/
-├── CMakeLists.txt          # CMake build configuration
-├── config.json             # Application configuration
-├── main.cc                 # Application entry point
-├── init.sql               # Database initialization script
-├── docker-compose.yml     # Docker services configuration
-├── controllers/           # HTTP request handlers
-│   ├── api_v1_User.h     # User controller header
-│   └── api_v1_User.cc    # User controller implementation
-├── models/               # Database models
-│   ├── model.json        # Model configuration
-│   ├── Users.h          # Users model header (auto-generated)
-│   └── Users.cc         # Users model implementation (auto-generated)
-├── utils/               # Utility functions
-│   └── Response.h       # Response helper utilities
-└── uploads/             # File upload directory
-    └── tmp/             # Temporary upload storage
+├── CMakeLists.txt
+├── config.json
+├── main.cc
+├── init.sql
+├── docker-compose.yml
+├── Dockerfile
+├── setup.md
+├── README.md
+├── controllers/
+│   ├── api_v1_User.h
+│   └── api_v1_User.cc
+├── models/
+│   ├── model.json
+│   ├── Users.h
+│   └── Users.cc
+├── utils/
+│   ├── AppError.h
+│   ├── AppError.cc
+│   ├── token.h
+│   └── token.cc
+├── filters/
+│   ├── auth.h
+│   └── auth.cc
+├── dependencies/
+│   ├── jwt-cpp/
+│   │   └── include/
+│   │       ├── jwt-cpp/
+│   │       └── picojson/
+│   └── Bcrypt/
+│       ├── include/
+│       │   └── bcrypt.h
+│       └── src/
+│           ├── bcrypt.cpp
+│           ├── blowfish.cpp
+│           ├── node_blf.h
+│           └── openbsd.h
+├── uploads/
+│   └── tmp/
+│       ├── FB/
+│       ├── FC/
+│       ├── ... (many more subfolders)
+├── build/
+│   ├── my_drogon_app
+│   └── ... (build artifacts)
+└── .vscode/
+    └── settings.json
 ```
+
+### Notes
+- The `dependencies/` folder contains third-party libraries used by the project, such as JWT-CPP for JWT handling and Bcrypt for password hashing.
+- The `filters/` folder contains authentication filters.
+- The `utils/` folder contains utility classes and functions, such as error handling and token utilities.
+- The `uploads/tmp/` folder contains many subdirectories for temporary file storage (all currently empty, used for sharding or temp files).
+- The `.vscode/` folder contains editor configuration for development.
 
 ## 🔧 Configuration
 

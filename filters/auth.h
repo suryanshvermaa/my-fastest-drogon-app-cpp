@@ -1,6 +1,6 @@
 /**
  *
- *  ErrorHandler.h
+ *  auth.h
  *
  */
 
@@ -10,10 +10,10 @@
 using namespace drogon;
 
 
-class ErrorHandler : public HttpFilter<ErrorHandler>
+class auth : public HttpFilter<auth>
 {
   public:
-    ErrorHandler() {}
+    auth() {}
     void doFilter(const HttpRequestPtr &req,
                   FilterCallback &&fcb,
                   FilterChainCallback &&fccb) override;

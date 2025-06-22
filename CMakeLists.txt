@@ -9,15 +9,14 @@ add_subdirectory(dependencies/Bcrypt)
 find_package(Drogon REQUIRED)
 
 add_executable(${PROJECT_NAME}
-    main.cc
-    controllers/api_v1_User.cc
-    models/Users.cc
-    utils/
+    src/main.cc
+    src/controllers/api_v1_User.cc
+    src/models/Users.cc
     dependencies/jwt-cpp
     dependencies/Bcrypt
-    filters/auth.cc
-    utils/AppError.cc
-    utils/token.cc
+    src/filters/auth.cc
+    src/utils/AppError.cc
+    src/utils/token.cc
 )
 
 target_link_libraries(${PROJECT_NAME}

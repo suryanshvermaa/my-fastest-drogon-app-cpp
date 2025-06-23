@@ -34,7 +34,6 @@ void auth::doFilter(const HttpRequestPtr &req,
         Json::Value res;
         res["success"]=false;
         res["message"]=e.what();
-        res["data"]=Json::nullValue;
         auto resp=HttpResponse::newHttpJsonResponse(res);
         resp->setStatusCode(e.statusCode);
         fcb(resp);
@@ -44,7 +43,6 @@ void auth::doFilter(const HttpRequestPtr &req,
         Json::Value res;
         res["success"]=false;
         res["message"]=e.what();
-        res["data"]=Json::nullValue;
         auto resp=HttpResponse::newHttpJsonResponse(res);
         resp->setStatusCode(k500InternalServerError);
         fcb(resp);

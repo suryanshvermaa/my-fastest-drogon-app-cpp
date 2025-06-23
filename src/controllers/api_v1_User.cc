@@ -5,9 +5,9 @@
 #include"bcrypt.h"
 #include"../utils/AppError.h"
 #include"../utils/token.h"
-#include"../utils/AppError.h"
+#include<jsoncpp/json/json.h>
+#include"../gemini/gemini.h"
 
-using namespace std;
 using namespace api::v1;
 using namespace drogon_model::userdb;
 
@@ -32,7 +32,6 @@ void User::signup(const HttpRequestPtr& req, std::function<void (const HttpRespo
             json["id"] = insertedUser.getValueOfId();
             json["name"] = insertedUser.getValueOfName();
             json["email"] = insertedUser.getValueOfEmail();
-            json["password"] = insertedUser.getValueOfPassword();
             json["token"]=Auth::createToken(insertedUser.getValueOfId(),insertedUser.getValueOfEmail());
             Json::Value res;
             res["sucess"]=true;
@@ -86,7 +85,6 @@ void User::login(const HttpRequestPtr &req, std::function<void (const HttpRespon
         mapper.findOne(drogon::orm::Criteria(Users::Cols::_email, email),
             [callback,password](const Users& user) {
                 bool isCorrectPassword=bcrypt::validatePassword(password,user.getValueOfPassword());
-                std::cout<<"l0"<<password<<" ";
                 if(!isCorrectPassword){
                     Json::Value res;
                     res["message"]="Password is incorrect";
@@ -147,6 +145,7 @@ void User::profile(const HttpRequestPtr &req, std::function<void (const HttpResp
         res["success"] = true;
         Json::Value data;
         data["userId"]=req->getParameter("userId");
+        data["content"]=sendPrompt("Hi");
         res["data"] = data;
         auto resp = HttpResponse::newHttpJsonResponse(res);
         resp->setStatusCode(k200OK);

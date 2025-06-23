@@ -107,6 +107,61 @@ void todos::getAllTodos(const HttpRequestPtr &req, std::function<void (const Htt
     }
 }
 
+void todos::getAllTodosByCompletion(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback,bool completion) const{
+    try {
+        int userId = std::stoi(req->getParameter("userId"));
+        drogon::orm::Mapper<Todos> mapper(drogon::app().getDbClient());
+        mapper.findBy(drogon::orm::Criteria(Todos::Cols::_user_id,userId)&&drogon::orm::Criteria(Todos::Cols::_completed,completion),[callback](const std::vector<Todos>&todos){
+            std::vector<Json::Value> arayOfJson;
+            for(Todos t:todos){
+                Json::Value data;
+                data["id"]=t.getValueOfId();
+                data["title"]=t.getValueOfTitle();
+                data["completed"]=t.getValueOfCompleted();
+                arayOfJson.push_back(data);
+            }
+            Json::Value res;
+            res["message"] = "fetched";
+            res["success"] = true;
+            res["data"] = Json::Value(Json::arrayValue);
+            for (const auto& item : arayOfJson) {
+                res["data"].append(item);
+            }
+            auto resp = HttpResponse::newHttpJsonResponse(res);
+            resp->setStatusCode(k200OK);
+            callback(resp);
+            return;
+        },[callback](const drogon::orm::DrogonDbException &e){
+            Json::Value res;
+            res["message"] = "Todos not found";
+            res["success"] = false;
+            auto resp = HttpResponse::newHttpJsonResponse(res);
+            resp->setStatusCode(k400BadRequest);
+            callback(resp);
+            return;
+        }
+    );
+    } catch (const AppError &e) {
+        Json::Value res;
+        res["message"] = e.what();
+        res["success"] = false;
+        auto resp = HttpResponse::newHttpJsonResponse(res);
+        resp->setStatusCode(e.statusCode);
+        callback(resp);
+        return;
+    } catch (const std::exception &e) {
+        Json::Value res;
+        res["message"] = e.what();
+        res["success"] = false;
+        auto resp = HttpResponse::newHttpJsonResponse(res);
+        resp->setStatusCode(k500InternalServerError);
+        callback(resp);
+        return;
+    }
+}
+
+
+
 void todos::createTodo(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback) {
     try {
         auto json = req->getJsonObject();

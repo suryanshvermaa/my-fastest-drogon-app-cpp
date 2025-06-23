@@ -6,7 +6,8 @@
 #include"../utils/AppError.h"
 #include"../utils/token.h"
 #include<jsoncpp/json/json.h>
-#include"../gemini/gemini.h"
+
+using namespace Auth;
 
 using namespace api::v1;
 using namespace drogon_model::userdb;
@@ -145,7 +146,6 @@ void User::profile(const HttpRequestPtr &req, std::function<void (const HttpResp
         res["success"] = true;
         Json::Value data;
         data["userId"]=req->getParameter("userId");
-        data["content"]=sendPrompt("Hi");
         res["data"] = data;
         auto resp = HttpResponse::newHttpJsonResponse(res);
         resp->setStatusCode(k200OK);

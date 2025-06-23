@@ -12,15 +12,18 @@ class todos : public drogon::HttpController<todos>
 {
   public:
     METHOD_LIST_BEGIN
-    // use METHOD_ADD to add your custom processing function here;
-    // METHOD_ADD(todos::get, "/{2}/{1}", Get); // path is /api/v1/todos/{arg2}/{arg1}
-    // METHOD_ADD(todos::your_method_name, "/{1}/{2}/list", Get); // path is /api/v1/todos/{arg1}/{arg2}/list
-    // ADD_METHOD_TO(todos::your_method_name, "/absolute/path/{1}/{2}/list", Get); // path is /absolute/path/{arg1}/{arg2}/list
-
+    ADD_METHOD_TO(todos::getTodo, "/api/v1/todos/{id}", Get); // path is /api/v1/todos/:id
+    METHOD_ADD(todos::createTodo, "/create", Post,"auth"); // path is /api/v1/todos/create
+    METHOD_ADD(todos::getAllTodos, "/getAll", Get,"auth"); // path is /api/v1/todos/create
+    ADD_METHOD_TO(todos::updateTodo, "/api/v1/todos/update/{id}", Put,"auth"); // path is /api/v1/todos/update/:id
+    ADD_METHOD_TO(todos::deleteTodo, "/api/v1/todos/delete/{id}", Delete,"auth");// path is /api/v1/todos/delete/:id
     METHOD_LIST_END
-    // your declaration of processing function maybe like this:
-    // void get(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, int p1, std::string p2);
-    // void your_method_name(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, double p1, int p2) const;
+
+    void getTodo(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback,int id)const;
+    void createTodo(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback);
+    void getAllTodos(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback) const;
+    void updateTodo(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback,int id);
+    void deleteTodo(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback,int id);
 };
 }
 }

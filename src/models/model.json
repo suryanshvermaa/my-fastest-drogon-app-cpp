@@ -5,7 +5,7 @@
   "dbname": "userdb",
   "user": "postgres",
   "passwd": "postgres",
-  "tables": ["users"],
+  "tables": ["users","todos"],
   "relationships": {
       "enabled": false,
       "items": []

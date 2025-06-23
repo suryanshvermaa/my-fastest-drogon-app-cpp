@@ -103,58 +103,42 @@ sudo make install
 my-drogon-app/
 ├── CMakeLists.txt
 ├── config.json
-├── main.cc
 ├── init.sql
 ├── docker-compose.yml
 ├── Dockerfile
 ├── setup.md
 ├── README.md
-├── controllers/
-│   ├── api_v1_User.h
-│   └── api_v1_User.cc
-├── models/
-│   ├── model.json
-│   ├── Users.h
-│   └── Users.cc
-├── utils/
-│   ├── AppError.h
-│   ├── AppError.cc
-│   ├── token.h
-│   └── token.cc
-├── filters/
-│   ├── auth.h
-│   └── auth.cc
-├── dependencies/
-│   ├── jwt-cpp/
-│   │   └── include/
-│   │       ├── jwt-cpp/
-│   │       └── picojson/
-│   └── Bcrypt/
-│       ├── include/
-│       │   └── bcrypt.h
-│       └── src/
-│           ├── bcrypt.cpp
-│           ├── blowfish.cpp
-│           ├── node_blf.h
-│           └── openbsd.h
-├── uploads/
-│   └── tmp/
-│       ├── FB/
-│       ├── FC/
-│       ├── ... (many more subfolders)
-├── build/
-│   ├── my_drogon_app
-│   └── ... (build artifacts)
-└── .vscode/
-    └── settings.json
+├── .gitignore
+├── .dockerignore
+├── src/
+│   ├── main.cc
+│   ├── controllers/
+│   │   ├── api_v1_todos.cc
+│   │   ├── api_v1_todos.h
+│   │   ├── api_v1_User.cc
+│   │   └── api_v1_User.h
+│   ├── models/
+│   │   ├── Todos.cc
+│   │   ├── Todos.h
+│   │   ├── Users.cc
+│   │   ├── Users.h
+│   │   └── model.json
+│   ├── utils/
+│   │   ├── AppError.cc
+│   │   ├── AppError.h
+│   │   ├── token.cc
+│   │   └── token.h
+│   └── filters/
+│       ├── auth.cc
+│       └── auth.h
+├── .vscode/
+│   └── settings.json
 ```
 
 ### Notes
-- The `dependencies/` folder contains third-party libraries used by the project, such as JWT-CPP for JWT handling and Bcrypt for password hashing.
-- The `filters/` folder contains authentication filters.
-- The `utils/` folder contains utility classes and functions, such as error handling and token utilities.
-- The `uploads/tmp/` folder contains many subdirectories for temporary file storage (all currently empty, used for sharding or temp files).
+- The `src/` folder contains all source code, organized into controllers, models, utils, and filters.
 - The `.vscode/` folder contains editor configuration for development.
+- The `.gitignore` and `.dockerignore` files specify files and folders to be ignored by Git and Docker, respectively.
 
 ## 🔧 Configuration
 
@@ -192,75 +176,32 @@ my-drogon-app/
 
 ## 📚 API Documentation
 
-### Base URL
+### User Controller Endpoints
+
+**Base URL:**
 ```
 http://localhost:3000/api/v1/User
 ```
 
-### Endpoints
+- **POST** `/api/v1/User/signup` — Create a new user
+- **POST** `/api/v1/User/login` — Login a user
+- **GET** `/api/v1/User/profile` — Get user profile (auth required)
 
-#### 1. User Signup
-**POST** `/api/v1/User/signup`
+### Todos Controller Endpoints
 
-Creates a new user account.
-
-**Request Body:**
-```json
-{
-    "name": "John Doe",
-    "email": "john@example.com",
-    "password": "securepassword123"
-}
+**Base URL:**
+```
+http://localhost:3000/api/v1/todos
 ```
 
-**Success Response (201):**
-```json
-{
-    "id": 1,
-    "name": "John Doe",
-    "email": "john@example.com",
-    "password": "securepassword123"
-}
-```
+- **GET** `/api/v1/todos/{id}` — Get a todo by ID
+- **POST** `/api/v1/todos/create` — Create a new todo (auth required)
+- **GET** `/api/v1/todos/getAll` — Get all todos (auth required)
+- **GET** `/api/v1/todos/getAll/{completion}` — Get all todos by completion status (auth required)
+- **PUT** `/api/v1/todos/update/{id}` — Update a todo by ID (auth required)
+- **DELETE** `/api/v1/todos/delete/{id}` — Delete a todo by ID (auth required)
 
-**Error Response (400):**
-```json
-{
-    "message": "All fields are required",
-    "success": false
-}
-```
-
-#### 2. Get All Users
-**GET** `/api/v1/User/getUsers`
-
-Retrieves all registered users.
-
-**Success Response (200):**
-```json
-[
-    {
-        "id": 1,
-        "name": "John Doe",
-        "email": "john@example.com",
-        "password": "securepassword123"
-    },
-    {
-        "id": 2,
-        "name": "Jane Smith",
-        "email": "jane@example.com",
-        "password": "anotherpassword"
-    }
-]
-```
-
-**Error Response (500):**
-```json
-{
-    "message": "Database error message",
-    "success": false
-}
-```
+---
 
 ## 🗄️ Database Schema
 
@@ -270,9 +211,47 @@ CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
+
+### Todos Table
+```sql
+CREATE TABLE todos(
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    completed BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+---
+
+## 🗃️ Models
+
+### Users Model
+Represents a user in the system. Fields:
+- `id`: integer, primary key
+- `name`: string
+- `email`: string, unique
+- `password`: string
+- `created_at`: timestamp
+- `updated_at`: timestamp
+
+### Todos Model
+Represents a todo item. Fields:
+- `id`: integer, primary key
+- `user_id`: integer, references users(id)
+- `title`: string
+- `completed`: boolean
+- `created_at`: timestamp
+- `updated_at`: timestamp
+
+---
 
 ## 🧪 Testing the API
 

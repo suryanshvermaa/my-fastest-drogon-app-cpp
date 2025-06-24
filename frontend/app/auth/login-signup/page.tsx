@@ -14,7 +14,7 @@ export default function Home() {
         <div className="flex justify-center mb-6">
           <div className="flex bg-muted rounded-lg p-1">
             <Button
-              variant={isLogin ? "default" : "ghost"}
+              variant={isLogin ? "primary" : "ghost"}
               size="sm"
               onClick={() => setIsLogin(true)}
               className="rounded-md"
@@ -22,7 +22,7 @@ export default function Home() {
               Login
             </Button>
             <Button
-              variant={!isLogin ? "default" : "ghost"}
+              variant={!isLogin ? "primary" : "ghost"}
               size="sm"
               onClick={() => setIsLogin(false)}
               className="rounded-md"

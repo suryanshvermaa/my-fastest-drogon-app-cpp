@@ -111,7 +111,7 @@ void User::login(const HttpRequestPtr &req, std::function<void (const HttpRespon
             },
             [callback](const drogon::orm::DrogonDbException &e) {
                 Json::Value res;
-                res["message"]=e.base().what();
+                res["message"]="User not found!";
                 res["success"]=false;
                 auto resp=HttpResponse::newHttpJsonResponse(res);
                 resp->setStatusCode(k500InternalServerError);

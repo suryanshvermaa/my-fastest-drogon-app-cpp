@@ -23,7 +23,7 @@ int main(){
     drogon::app().registerPostHandlingAdvice([](const drogon::HttpRequestPtr &req, const drogon::HttpResponsePtr &resp) {
         resp->addHeader("Access-Control-Allow-Origin", "*");
     });
-    std::cout<<"Server is running on port 3000!"<<std::endl;
+    std::cout<<"Server is running!"<<std::endl;
     drogon::app().loadConfigFile("config.json").run();
     return 0;
 }

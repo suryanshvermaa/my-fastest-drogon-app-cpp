@@ -5,9 +5,3 @@ export interface Todo {
 }
 
 export type FilterType = "all" | "active" | "completed"
-
-export interface AIMessage {
-  role: "user" | "assistant"
-  content: string
-  timestamp: Date
-}

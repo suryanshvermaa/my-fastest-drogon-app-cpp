@@ -217,54 +217,78 @@ void todos::createTodo(const HttpRequestPtr &req, std::function<void (const Http
     }
 }
 
-void todos::updateTodo(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback,int id) {
+void todos::updateTodo(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, int id) {
     try {
+        // Validate JSON input
         auto json = req->getJsonObject();
-        if(!json) throw AppError("All fields are required!",k400BadRequest);
-        if(!json->isMember("title")||!json->isMember("completed")) throw AppError("All fields are required!",k400BadRequest);
-        std::string titleReq=(*json)["title"].asString();
-        bool completedReq=(*json)["completed"].asBool();
+        if (!json || !json->isMember("title") || !json->isMember("completed")) {
+            throw AppError("All fields (title and completed) are required!", k400BadRequest);
+        }
+
+        // Extract JSON fields
+        std::string titleReq = (*json)["title"].asString();
+        bool completedReq = (*json)["completed"].asBool();
+
+        // Initialize database mapper
         drogon::orm::Mapper<Todos> mapper(drogon::app().getDbClient());
-        mapper.findByPrimaryKey(id,[callback,&mapper,titleReq,completedReq](const Todos&todo){
-            auto updatedTodo = todo;
-            updatedTodo.setCompleted(completedReq);
-            updatedTodo.setTitle(titleReq);
-            
-            mapper.update(updatedTodo,[updatedTodo,callback](const size_t rows) {
-                Json::Value res;
-                res["message"] = "updated successfully";
-                res["success"] = true;
-                Json::Value data;
-                data["id"]=updatedTodo.getValueOfId();
-                data["completed"]=updatedTodo.getValueOfCompleted();
-                data["title"]=updatedTodo.getValueOfTitle();
-                res["data"] = data;
-                auto resp = HttpResponse::newHttpJsonResponse(res);
-                resp->setStatusCode(k200OK);
-                callback(resp);
-                return;
+
+        // Find Todo by ID
+        mapper.findByPrimaryKey(
+            id,
+            [callback, titleReq, completedReq](const Todos &todo) {
+                // Create a copy to update
+                auto updatedTodo = todo;
+                updatedTodo.setTitle(titleReq);
+                updatedTodo.setCompleted(completedReq);
+
+                // Initialize mapper again for the update operation
+                drogon::orm::Mapper<Todos> mapper(drogon::app().getDbClient());
+
+                // Update Todo in database
+                mapper.update(
+                    updatedTodo,
+                    [callback, updatedTodo](size_t rows) {
+                        if (rows == 0) {
+                            Json::Value res;
+                            res["message"] = "No Todo was updated";
+                            res["success"] = false;
+                            auto resp = HttpResponse::newHttpJsonResponse(res);
+                            resp->setStatusCode(k400BadRequest);
+                            callback(resp);
+                            return;
+                        }
+
+                        // Prepare success response
+                        Json::Value res;
+                        res["message"] = "Updated successfully";
+                        res["success"] = true;
+                        Json::Value data;
+                        data["id"] = updatedTodo.getValueOfId();
+                        data["title"] = updatedTodo.getValueOfTitle();
+                        data["completed"] = updatedTodo.getValueOfCompleted();
+                        res["data"] = data;
+
+                        auto resp = HttpResponse::newHttpJsonResponse(res);
+                        resp->setStatusCode(k200OK);
+                        callback(resp);
+                    },
+                    [callback](const drogon::orm::DrogonDbException &e) {
+                        Json::Value res;
+                        res["message"] = std::string("Todo update failed: ") + e.base().what();
+                        res["success"] = false;
+                        auto resp = HttpResponse::newHttpJsonResponse(res);
+                        resp->setStatusCode(k500InternalServerError);
+                        callback(resp);
+                    });
             },
-            [callback](const  drogon::orm::DrogonDbException &e) {
+            [callback](const drogon::orm::DrogonDbException &e) {
                 Json::Value res;
-                res["message"] = "Todo updatation failed";
+                res["message"] = std::string("Todo not found: ") + e.base().what();
                 res["success"] = false;
                 auto resp = HttpResponse::newHttpJsonResponse(res);
-                resp->setStatusCode(k400BadRequest);
+                resp->setStatusCode(k404NotFound);
                 callback(resp);
-                return;
             });
-
-
-        },[callback](const drogon::orm::DrogonDbException &e){
-            Json::Value res;
-            res["message"] = "Todo updatation failed";
-            res["success"] = false;
-            auto resp = HttpResponse::newHttpJsonResponse(res);
-            resp->setStatusCode(k400BadRequest);
-            callback(resp);
-            return;
-        });
-
 
     } catch (const AppError &e) {
         Json::Value res;
@@ -273,18 +297,22 @@ void todos::updateTodo(const HttpRequestPtr &req, std::function<void (const Http
         auto resp = HttpResponse::newHttpJsonResponse(res);
         resp->setStatusCode(e.statusCode);
         callback(resp);
-        return;
     } catch (const std::exception &e) {
         Json::Value res;
-        res["message"] = e.what();
+        res["message"] = std::string("Server error: ") + e.what();
         res["success"] = false;
         auto resp = HttpResponse::newHttpJsonResponse(res);
         resp->setStatusCode(k500InternalServerError);
         callback(resp);
-        return;
+    } catch (...) {
+        Json::Value res;
+        res["message"] = "Unknown server error";
+        res["success"] = false;
+        auto resp = HttpResponse::newHttpJsonResponse(res);
+        resp->setStatusCode(k500InternalServerError);
+        callback(resp);
     }
 }
-
 void todos::deleteTodo(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback,int id) {
     try {
         drogon::orm::Mapper<Todos> mapper(drogon::app().getDbClient());

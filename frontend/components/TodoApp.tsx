@@ -7,17 +7,20 @@ import { AddTodoForm } from "./AddTodoForm"
 import { TodoFilters } from "./TodoFilters"
 import { TodoList } from "./TodoList"
 import { LoadingSpinner } from "./ui/LoadingSpinner"
-import { todoApi } from "@/lib/api"
 import type { Todo, FilterType } from "@/types/todo"
 import axios from "axios"
+import { useRouter } from "next/navigation"
 
 export function TodoApp() {
   const [todos, setTodos] = useState<Todo[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<FilterType>("all")
   const [searchTerm, setSearchTerm] = useState("")
+  const router=useRouter();
 
   useEffect(() => {
+    const token=localStorage.getItem("token");
+    if(!token) router.push("/auth/login-signup")
     loadTodos()
   }, [])
 

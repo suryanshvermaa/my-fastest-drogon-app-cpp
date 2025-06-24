@@ -67,7 +67,7 @@ export default function SignupForm() {
         password: formData.password
       })
       setSuccess(true)
-      // Reset form
+      localStorage.setItem("token",response.data.data.token)
       setFormData({ name: "", email: "", password: "", confirmPassword: "" })
 
       // Redirect to login or dashboard after a short delay

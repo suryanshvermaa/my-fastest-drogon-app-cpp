@@ -25,11 +25,11 @@ RUN git clone https://github.com/drogonframework/drogon.git /tmp/drogon \
  && git checkout ${DROGON_VERSION} \
  && git submodule update --init --recursive \
  && mkdir build && cd build \
- && cmake .. -DCMAKE_BUILD_TYPE=Release \
- && make -j"$(nproc)" \
- && make install \
- && ldconfig \
- && rm -rf /tmp/drogon
+ && sudo cmake .. -DCMAKE_BUILD_TYPE=Release \
+ && sudo make -j"$(nproc)" \
+ && sudo make install \
+ && sudo ldconfig \
+ && sudo rm -rf /tmp/drogon
 
 WORKDIR /app
 

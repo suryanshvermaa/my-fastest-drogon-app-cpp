@@ -1,13 +1,26 @@
-# !/bin/bash
+#!/bin/bash
+set -e  # Exit on any error
+set -u  # Treat unset variables as errors
 
 echo "Installing dependencies..."
+
+# Create and move into the dependencies directory
 mkdir -p ./dependencies
-cd ./dependencies
+cd ./dependencies || exit 1
 
-echo "installing jwt-cpp"
-git clone https://github.com/Thalhammer/jwt-cpp.git
+echo "Installing jwt-cpp..."
+if [ ! -d "jwt-cpp" ]; then
+  git clone --depth 1 https://github.com/Thalhammer/jwt-cpp.git
+else
+  echo "jwt-cpp already exists. Skipping clone."
+fi
 
-echo "installing bcrypt-cpp"
-git clone https://github.com/hilch/Bcrypt.cpp.git
-# renaming from Bcrypt.cpp to Bcrypt
-mv Bcrypt.cpp Bcrypt
+echo "Installing bcrypt-cpp..."
+if [ ! -d "Bcrypt" ]; then
+  git clone --depth 1 https://github.com/hilch/Bcrypt.cpp.git
+  mv Bcrypt.cpp Bcrypt
+else
+  echo "Bcrypt already exists. Skipping clone."
+fi
+
+echo "All dependencies installed successfully."

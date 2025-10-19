@@ -15,17 +15,17 @@ services:
       - ./pgdata:/var/lib/postgresql/data
     restart: unless-stopped
 
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: drogon_api
-    depends_on:
-      - postgres
-    environment:
-      # no env needed; config.docker.json baked into image
-      - TZ=UTC
-      - JWT_SECRET=mysecretkey
-    ports:
-      - "3001:3001"
-    restart: unless-stopped
+  # api:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: drogon_api
+  #   depends_on:
+  #     - postgres
+  #   environment:
+  #     # no env needed; config.docker.json baked into image
+  #     - TZ=UTC
+  #     - JWT_SECRET=mysecretkey
+  #   ports:
+  #     - "3001:3001"
+  #   restart: unless-stopped

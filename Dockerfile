@@ -38,7 +38,6 @@ COPY CMakeLists.txt /app/CMakeLists.txt
 COPY src/ /app/src/
 COPY dependencies.sh /app/dependencies.sh
 COPY config.docker.json /app/config.json
-COPY init.sql /app/init.sql
 
 # Fix line endings and fetch third-party deps expected by CMake add_subdirectory()
 RUN sed -i 's/\r$//' /app/dependencies.sh && bash dependencies.sh
@@ -72,7 +71,6 @@ WORKDIR /app
 # Copy binary and required files
 COPY --from=builder /app/build/my_drogon_app /app/my_drogon_app
 COPY --from=builder /app/config.json /app/config.json
-COPY --from=builder /app/init.sql /app/init.sql
 
 # Copy Drogon and Trantor shared libraries from builder
 COPY --from=builder /usr/local/lib/libdrogon* /usr/local/lib/

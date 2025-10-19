@@ -1,11 +1,12 @@
-# Multi-stage build for Drogon C++ application
-FROM ubuntu:22.04 as builder
+## Production Dockerfile (backend only)
+## Multi-stage build: compile in builder, run in slim runtime
 
-# Set environment variables
-ENV DEBIAN_FRONTEND=noninteractive
-ENV DROGON_VERSION=v1.9.0
+FROM ubuntu:22.04 AS builder
 
-# Install system dependencies
+ENV DEBIAN_FRONTEND=noninteractive \
+    DROGON_VERSION=v1.9.0
+
+# Build toolchain and Drogon deps
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
@@ -16,83 +17,78 @@ RUN apt-get update && apt-get install -y \
     libjsoncpp-dev \
     libboost-all-dev \
     uuid-dev \
-    && rm -rf /var/lib/apt/lists/*
+ && rm -rf /var/lib/apt/lists/*
 
-# Clone and build Drogon
-WORKDIR /tmp
-RUN git clone https://github.com/drogonframework/drogon.git \
-    && cd drogon \
-    && git checkout ${DROGON_VERSION} \
-    && mkdir build && cd build \
-    && cmake .. \
-    && make -j$(nproc) \
-    && make install \
-    && ldconfig
+# Build Drogon from source (includes Trantor)
+RUN git clone https://github.com/drogonframework/drogon.git /tmp/drogon \
+ && cd /tmp/drogon \
+ && git checkout ${DROGON_VERSION} \
+ && git submodule update --init --recursive \
+ && mkdir build && cd build \
+ && cmake .. -DCMAKE_BUILD_TYPE=Release \
+ && make -j"$(nproc)" \
+ && make install \
+ && ldconfig \
+ && rm -rf /tmp/drogon
 
-# Set up application directory
 WORKDIR /app
 
-# Copy CMakeLists.txt and build the application
-COPY CMakeLists.txt .
-COPY main.cc .
-COPY controllers/ ./controllers/
-COPY models/ ./models/
-COPY utils/ ./utils/
+# Copy project files
+COPY CMakeLists.txt /app/CMakeLists.txt
+COPY src/ /app/src/
+COPY dependencies.sh /app/dependencies.sh
+COPY config.docker.json /app/config.json
+COPY init.sql /app/init.sql
 
-# Build the application
-RUN mkdir build && cd build \
-    && cmake .. \
-    && make -j$(nproc)
+# Fix line endings and fetch third-party deps expected by CMake add_subdirectory()
+RUN sed -i 's/\r$//' /app/dependencies.sh && bash dependencies.sh
 
-# Runtime stage
-FROM ubuntu:22.04 as runtime
+# Configure and build (Release)
+RUN mkdir -p /app/build \
+ && cd /app/build \
+ && cmake .. -DCMAKE_BUILD_TYPE=Release \
+ && make -j"$(nproc)"
 
-# Install runtime dependencies
+FROM ubuntu:22.04 AS runtime
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install minimal runtime libraries
 RUN apt-get update && apt-get install -y \
-    libpq5 \
-    libssl3 \
-    libjsoncpp25 \
-    libboost-system1.74.0 \
-    libboost-filesystem1.74.0 \
-    libboost-regex1.74.0 \
-    libboost-thread1.74.0 \
-    libboost-date-time1.74.0 \
-    libboost-coroutine1.74.0 \
-    libboost-context1.74.0 \
-    libboost-asio1.74.0 \
-    libboost-beast1.74.0 \
-    libuuid1 \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+  libpq5 \
+  libssl3 \
+  libuuid1 \
+  zlib1g \
+  libjsoncpp-dev \
+  ca-certificates \
+  curl \
+ && rm -rf /var/lib/apt/lists/*
 
-# Create non-root user
+# Non-root user
 RUN useradd -m -u 1000 appuser
 
-# Set up application directory
 WORKDIR /app
 
-# Copy configuration files
-COPY config.json .
-COPY init.sql .
+# Copy binary and required files
+COPY --from=builder /app/build/my_drogon_app /app/my_drogon_app
+COPY --from=builder /app/config.json /app/config.json
+COPY --from=builder /app/init.sql /app/init.sql
 
-# Copy the built application from builder stage
-COPY --from=builder /app/build/my_drogon_app .
+# Copy Drogon and Trantor shared libraries from builder
+COPY --from=builder /usr/local/lib/libdrogon* /usr/local/lib/
+COPY --from=builder /usr/local/lib/libtrantor* /usr/local/lib/
+RUN ldconfig
 
-# Create uploads directory
-RUN mkdir -p uploads/tmp && chown -R appuser:appuser uploads
+# Runtime dir for uploads
+RUN mkdir -p /app/uploads/tmp && chown -R appuser:appuser /app
 
-# Change ownership of application files
-RUN chown -R appuser:appuser /app
-
-# Switch to non-root user
 USER appuser
 
-# Expose port
-EXPOSE 3000
+# Port from config.json
+EXPOSE 3001
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:3000/api/v1/User/getUsers || exit 1
+# Healthcheck: basic HTTP reachability (does not fail on 404)
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -sS http://localhost:3001 >/dev/null || exit 1
 
-# Run the application
-CMD ["./my_drogon_app"] 
+CMD ["/app/my_drogon_app"]

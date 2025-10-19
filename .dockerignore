@@ -36,6 +36,17 @@ README.md
 docker-compose.yml
 .dockerignore
 
+# Frontend (ignored for backend-only images)
+frontend/
+package.json
+pnpm-lock.yaml
+yarn.lock
+node_modules/
+
+# Scripts: ignore all except the dev entrypoint used by Dockerfile.dev
+scripts/*
+!scripts/dev-entrypoint.sh
+
 # Database files
 *.db
 *.sqlite

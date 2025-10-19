@@ -2,13 +2,30 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres
+    image: postgres:15
     container_name: postgres_prod
     environment:
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
-      POSTGRES_DB: ${DB_NAME:-userdb}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: userdb
     ports:
-      - "5000:5432"
+      - "5432:5432" # Expose for local access; app connects via service name
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: drogon_api
+    depends_on:
+      - postgres
+    environment:
+      # no env needed; config.docker.json baked into image
+      - TZ=UTC
+      - JWT_SECRET=mysecretkey
+    ports:
+      - "3001:3001"
+    restart: unless-stopped

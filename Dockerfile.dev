@@ -1,0 +1,66 @@
+# Development Dockerfile for backend (Drogon C++ app)
+# Single-stage build with hot-reload support
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    DROGON_VERSION=v1.9.0
+
+# Base build tools and libraries for Drogon and PostgreSQL
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    git \
+    libpq-dev \
+    libssl-dev \
+    zlib1g-dev \
+    libjsoncpp-dev \
+    libboost-all-dev \
+    uuid-dev \
+    ca-certificates \
+    curl \
+    postgresql-client \
+    vim \
+    gdb \
+ && rm -rf /var/lib/apt/lists/*
+
+# Build and install Drogon (and Trantor) with submodules
+RUN git clone https://github.com/drogonframework/drogon.git /tmp/drogon \
+ && cd /tmp/drogon \
+ && git checkout ${DROGON_VERSION} \
+ && git submodule update --init --recursive \
+ && mkdir build && cd build \
+ && cmake .. -DCMAKE_BUILD_TYPE=Debug \
+ && make -j"$(nproc)" \
+ && make install \
+ && ldconfig \
+ && rm -rf /tmp/drogon
+
+# Create an unprivileged user for development (match host UID/GID if desired)
+ARG UID=1000
+ARG GID=1000
+RUN groupadd -g ${GID} dev || true \
+ && useradd -m -u ${UID} -g ${GID} dev || true
+
+WORKDIR /app
+
+# Fix line endings helper for dependencies script
+COPY dependencies.sh /app/dependencies.sh
+RUN sed -i 's/\r$//' /app/dependencies.sh
+
+# Copy and prepare entrypoint script
+COPY scripts/dev-entrypoint.sh /usr/local/bin/dev-entrypoint.sh
+RUN sed -i 's/\r$//' /usr/local/bin/dev-entrypoint.sh && \
+    chmod +x /usr/local/bin/dev-entrypoint.sh
+
+# Runtime dir for uploads
+RUN mkdir -p /app/uploads/tmp
+
+# Expose backend port (from config.json)
+EXPOSE 3001
+
+# Healthcheck for development
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -sS http://localhost:3001 >/dev/null || exit 1
+
+# In dev, mount project into /app and the entrypoint will build and run it
+ENTRYPOINT ["/usr/local/bin/dev-entrypoint.sh"]

@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  drogon-app-db
+  namespace:  drogon-project
+  labels:
+    name:  drogon-app-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name:  drogon-app-db
+  template:
+    metadata:
+      labels:
+        name:  drogon-app-db
+    spec:
+      containers:
+      - image:  suryanshvermaa/drogon-project-db:1.0.0
+        name:  drogon-app-db
+        ports:
+        - containerPort:  5432
+          name:  drogon-app-db
+        env:
+          - name:  POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name:  drogon-db-secret
+                key:  POSTGRES_USER
+          - name:  POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name:  drogon-db-secret
+                key:  POSTGRES_PASSWORD
+          - name:  POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                name:  drogon-db-secret
+                key:  POSTGRES_DB
+        volumeMounts:
+          - name: mongo-volume
+            mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: mongo-volume
+          persistentVolumeClaim:
+            claimName: drogon-app-pvc

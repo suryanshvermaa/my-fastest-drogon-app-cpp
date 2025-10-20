@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drogon-app
+  namespace: drogon-project
+  labels:
+    app: drogon-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: drogon-app
+  template:
+    metadata:
+      labels:
+        app: drogon-app
+    spec:
+      containers:
+      - name: drogon-app
+        image: suryanshvermaa/drogon-app:1.0.0
+        ports:
+        - containerPort: 3001
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+        env:
+          - name:  JWT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name:  drogon-app-secret
+                key:  jwt_secret
+        

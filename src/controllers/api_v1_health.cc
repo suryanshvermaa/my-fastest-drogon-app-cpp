@@ -2,6 +2,7 @@
 #include<jsoncpp/json/json.h>
 
 using namespace std;
+using namespace api::v1; 
 
 void health::healthCheck(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback){
     try {

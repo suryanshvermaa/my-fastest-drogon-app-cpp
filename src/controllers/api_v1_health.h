@@ -3,7 +3,10 @@
 #include <drogon/HttpController.h>
 
 using namespace drogon;
-
+namespace api
+{
+namespace v1
+{
 class health : public drogon::HttpController<health>
 {
   public:
@@ -12,3 +15,5 @@ class health : public drogon::HttpController<health>
     METHOD_LIST_END
     void healthCheck(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback);
 };
+}
+}

@@ -304,70 +304,300 @@ my-fastest-drogon-app-cpp/
 
 ## 🔧 Configuration
 
-### Application Configuration (`config.json`)
+### Backend Configuration
 
+The application supports two configuration files:
+
+**`config.json`** (Local development):
 ```json
 {
-    "listeners": [
-      {
-        "address": "0.0.0.0",
-        "port": 3000
-      }
-    ],
-    "db_clients": [
-      {
-        "rdbms": "postgresql",
-        "host": "127.0.0.1",
-        "port": 8000,
-        "dbname": "userdb",
-        "user": "postgres",
-        "password": "postgres",
-        "is_fast": false
-      }
-    ]
+  "listeners": [
+    {
+      "address": "0.0.0.0",
+      "port": 3001
+    }
+  ],
+  "db_clients": [
+    {
+      "rdbms": "postgresql",
+      "host": "127.0.0.1",
+      "port": 5432,
+      "dbname": "userdb",
+      "user": "postgres",
+      "password": "postgres",
+      "is_fast": false
+    }
+  ]
 }
 ```
 
-### Database Configuration
+**`config.docker.json`** (Docker environment):
+```json
+{
+  "listeners": [
+    {
+      "address": "0.0.0.0",
+      "port": 3001
+    }
+  ],
+  "db_clients": [
+    {
+      "rdbms": "postgresql",
+      "host": "postgres",
+      "port": 5432,
+      "dbname": "userdb",
+      "user": "postgres",
+      "password": "postgres",
+      "is_fast": false
+    }
+  ]
+}
+```
 
-- **Host**: 127.0.0.1 (or localhost)
-- **Port**: 8000 (Docker) or 5432 (local PostgreSQL)
-- **Database**: userdb
-- **Username**: postgres
-- **Password**: postgres
+### Environment Variables
+
+Set the following environment variable for JWT authentication:
+
+```bash
+export JWT_SECRET="your-secret-key-here"
+```
+
+For Docker/Kubernetes, this is configured via secrets.
 
 ## 📚 API Documentation
 
-### User Controller Endpoints
-
-**Base URL:**
+### Base URL
 ```
-http://localhost:3000/api/v1/User
+http://localhost:3001/api/v1
 ```
 
-- **POST** `/api/v1/User/signup` — Create a new user
-- **POST** `/api/v1/User/login` — Login a user
-- **GET** `/api/v1/User/profile` — Get user profile (auth required)
+### Authentication
 
-### Todos Controller Endpoints
+The API uses JWT (JSON Web Tokens) for authentication. Protected endpoints require an `Authorization` header:
 
-**Base URL:**
 ```
-http://localhost:3000/api/v1/todos
+Authorization: Bearer <your-jwt-token>
 ```
 
-- **GET** `/api/v1/todos/{id}` — Get a todo by ID
-- **POST** `/api/v1/todos/create` — Create a new todo (auth required)
-- **GET** `/api/v1/todos/getAll` — Get all todos (auth required)
-- **GET** `/api/v1/todos/getAll/{completion}` — Get all todos by completion status (auth required)
-- **PUT** `/api/v1/todos/update/{id}` — Update a todo by ID (auth required)
-- **DELETE** `/api/v1/todos/delete/{id}` — Delete a todo by ID (auth required)
+### Endpoints
+
+#### 🔐 Authentication Endpoints
+
+##### **POST** `/api/v1/User/signup`
+Create a new user account.
+
+**Request Body:**
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "securepassword"
+}
+```
+
+**Response:** `201 Created`
+```json
+{
+  "status": "success",
+  "token": "eyJhbGciOiJIUzI1NiIs...",
+  "user": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john@example.com"
+  }
+}
+```
+
+##### **POST** `/api/v1/User/login`
+Login to an existing account.
+
+**Request Body:**
+```json
+{
+  "email": "john@example.com",
+  "password": "securepassword"
+}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "status": "success",
+  "token": "eyJhbGciOiJIUzI1NiIs...",
+  "user": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john@example.com"
+  }
+}
+```
+
+##### **GET** `/api/v1/User/profile` 🔒
+Get current user profile (requires authentication).
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Response:** `200 OK`
+```json
+{
+  "id": 1,
+  "name": "John Doe",
+  "email": "john@example.com",
+  "created_at": "2025-01-15T10:30:00Z"
+}
+```
 
 ---
 
+#### ✅ Todo Endpoints (All require authentication)
+
+##### **POST** `/api/v1/todos/create` 🔒
+Create a new todo.
+
+**Request Body:**
+```json
+{
+  "title": "Complete project documentation",
+  "completed": false
+}
+```
+
+**Response:** `201 Created`
+```json
+{
+  "id": 1,
+  "user_id": 1,
+  "title": "Complete project documentation",
+  "completed": false,
+  "created_at": "2025-01-15T10:30:00Z"
+}
+```
+
+##### **GET** `/api/v1/todos/getAll` 🔒
+Get all todos for the authenticated user.
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "id": 1,
+    "title": "Complete project documentation",
+    "completed": false,
+    "created_at": "2025-01-15T10:30:00Z"
+  },
+  {
+    "id": 2,
+    "title": "Review pull requests",
+    "completed": true,
+    "created_at": "2025-01-15T11:00:00Z"
+  }
+]
+```
+
+##### **GET** `/api/v1/todos/{id}` 🔒
+Get a specific todo by ID.
+
+**Response:** `200 OK`
+```json
+{
+  "id": 1,
+  "title": "Complete project documentation",
+  "completed": false,
+  "user_id": 1
+}
+```
+
+##### **GET** `/api/v1/todos/getAll/{completion}` 🔒
+Get todos filtered by completion status.
+
+**Parameters:**
+- `completion`: `true` or `false`
+
+**Example:** `/api/v1/todos/getAll/true`
+
+##### **PUT** `/api/v1/todos/update/{id}` 🔒
+Update a todo.
+
+**Request Body:**
+```json
+{
+  "title": "Updated title",
+  "completed": true
+}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "id": 1,
+  "title": "Updated title",
+  "completed": true,
+  "updated_at": "2025-01-15T12:00:00Z"
+}
+```
+
+##### **DELETE** `/api/v1/todos/delete/{id}` 🔒
+Delete a todo.
+
+**Response:** `200 OK`
+```json
+{
+  "status": "success",
+  "message": "Todo deleted successfully"
+}
+```
+
+---
+
+#### 🏥 Health Check
+
+##### **GET** `/api/v1/health`
+Check API health status.
+
+**Response:** `200 OK`
+```json
+{
+  "status": "healthy",
+  "timestamp": "2025-01-15T10:30:00Z"
+}
+```
+
 ## 🗄️ Database Schema
 
-### Users Table
+### Entity Relationship Diagram
+
+```
+┌─────────────────────┐
+│      users          │
+├─────────────────────┤
+│ id (PK)             │
+│ name                │
+│ email (UNIQUE)      │
+│ password (hashed)   │
+│ created_at          │
+│ updated_at          │
+└──────────┬──────────┘
+           │ 1
+           │
+           │ N
+┌──────────▼──────────┐
+│      todos          │
+├─────────────────────┤
+│ id (PK)             │
+│ user_id (FK)        │
+│ title               │
+│ completed           │
+│ created_at          │
+│ updated_at          │
+└─────────────────────┘
+```
+
+### Table Definitions
+
+#### Users Table
 ```sql
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
@@ -379,7 +609,7 @@ CREATE TABLE users (
 );
 ```
 
-### Todos Table
+#### Todos Table
 ```sql
 CREATE TABLE todos(
     id SERIAL PRIMARY KEY,
@@ -391,131 +621,284 @@ CREATE TABLE todos(
 );
 ```
 
----
-
-## 🗃️ Models
-
-### Users Model
-Represents a user in the system. Fields:
-- `id`: integer, primary key
-- `name`: string
-- `email`: string, unique
-- `password`: string
-- `created_at`: timestamp
-- `updated_at`: timestamp
-
-### Todos Model
-Represents a todo item. Fields:
-- `id`: integer, primary key
-- `user_id`: integer, references users(id)
-- `title`: string
-- `completed`: boolean
-- `created_at`: timestamp
-- `updated_at`: timestamp
-
----
+### Relationships
+- **Users → Todos**: One-to-Many (One user can have multiple todos)
+- **ON DELETE CASCADE**: When a user is deleted, all their todos are automatically deleted
 
 ## 🧪 Testing the API
 
-### Using curl
+### Using cURL
 
-1. **Create a new user:**
+1. **Signup**
    ```bash
-   curl -X POST http://localhost:3000/api/v1/User/signup \
+   curl -X POST http://localhost:3001/api/v1/User/signup \
      -H "Content-Type: application/json" \
      -d '{
        "name": "Test User",
        "email": "test@example.com",
-       "password": "testpassword"
+       "password": "password123"
      }'
    ```
 
-2. **Get all users:**
+2. **Login**
    ```bash
-   curl -X GET http://localhost:3000/api/v1/User/getUsers
+   curl -X POST http://localhost:3001/api/v1/User/login \
+     -H "Content-Type: application/json" \
+     -d '{
+       "email": "test@example.com",
+       "password": "password123"
+     }'
    ```
 
-### Using Postman
+3. **Get Profile** (save token from login response)
+   ```bash
+   TOKEN="your-jwt-token-here"
+   curl -X GET http://localhost:3001/api/v1/User/profile \
+     -H "Authorization: Bearer $TOKEN"
+   ```
 
-1. Import the following collection:
-   ```json
-   {
-     "info": {
-       "name": "My Drogon App API",
-       "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-     },
-     "item": [
-       {
-         "name": "User Signup",
-         "request": {
-           "method": "POST",
-           "header": [
-             {
-               "key": "Content-Type",
-               "value": "application/json"
-             }
-           ],
-           "body": {
-             "mode": "raw",
-             "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"password\": \"testpassword\"\n}"
-           },
-           "url": {
-             "raw": "http://localhost:3000/api/v1/User/signup",
-             "protocol": "http",
-             "host": ["localhost"],
-             "port": "3000",
-             "path": ["api", "v1", "User", "signup"]
-           }
-         }
-       },
-       {
-         "name": "Get All Users",
-         "request": {
-           "method": "GET",
-           "url": {
-             "raw": "http://localhost:3000/api/v1/User/getUsers",
-             "protocol": "http",
-             "host": ["localhost"],
-             "port": "3000",
-             "path": ["api", "v1", "User", "getUsers"]
-           }
-         }
-       }
-     ]
-   }
+4. **Create Todo**
+   ```bash
+   curl -X POST http://localhost:3001/api/v1/todos/create \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer $TOKEN" \
+     -d '{
+       "title": "Learn Drogon Framework",
+       "completed": false
+     }'
+   ```
+
+5. **Get All Todos**
+   ```bash
+   curl -X GET http://localhost:3001/api/v1/todos/getAll \
+     -H "Authorization: Bearer $TOKEN"
+   ```
+
+6. **Update Todo**
+   ```bash
+   curl -X PUT http://localhost:3001/api/v1/todos/update/1 \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer $TOKEN" \
+     -d '{
+       "title": "Learn Drogon Framework",
+       "completed": true
+     }'
+   ```
+
+7. **Delete Todo**
+   ```bash
+   curl -X DELETE http://localhost:3001/api/v1/todos/delete/1 \
+     -H "Authorization: Bearer $TOKEN"
+   ```
+
+## � Deployment
+
+### Docker Deployment
+
+#### Production Build
+```bash
+# Build production image
+docker build -t drogon-app:latest -f Dockerfile .
+
+# Run with docker-compose
+docker-compose up -d
+```
+
+#### Development Build
+```bash
+# Build dev image with hot-reload support
+docker build -t drogon-app:dev -f Dockerfile.dev .
+
+# Run development container
+docker run -it --rm \
+  -v $(pwd):/app \
+  -p 3001:3001 \
+  --network host \
+  drogon-app:dev
+```
+
+### Kubernetes Deployment
+
+1. **Create namespace**
+   ```bash
+   kubectl apply -f k8s/namespace.yaml
+   ```
+
+2. **Deploy PostgreSQL database**
+   ```bash
+   kubectl apply -f k8s/db/
+   ```
+
+3. **Deploy application**
+   ```bash
+   kubectl apply -f k8s/app/
+   ```
+
+4. **Setup Ingress**
+   ```bash
+   # Install NGINX Ingress Controller (if not already installed)
+   kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/cloud/deploy.yaml
+   
+   # Apply ingress rules
+   kubectl apply -f k8s/ingress.yaml
+   ```
+
+5. **Verify deployment**
+   ```bash
+   kubectl get pods -n drogon-project
+   kubectl get svc -n drogon-project
+   kubectl get ingress -n drogon-project
+   ```
+
+### CI/CD with Jenkins
+
+The project includes a `Jenkinsfile` for automated CI/CD:
+
+**Pipeline Stages:**
+1. **Workspace Cleanup**: Clean previous builds
+2. **Clone Repository**: Fetch latest code
+3. **Build Docker Image**: Build production image
+4. **Push to Docker Hub**: Push image to registry
+5. **Update K8s Deployment**: Update deployment manifest
+6. **Git Commit**: Commit changes for GitOps
+
+**Setup:**
+1. Configure Jenkins credentials:
+   - `dockerhubCredentials`: Docker Hub username/password
+   - `Github-Cred`: GitHub credentials
+
+2. Create Jenkins pipeline job:
+   ```bash
+   # Point to Jenkinsfile in repository
+   # Configure parameter: BACKEND_DOCKER_TAG
+   ```
+
+3. Trigger build:
+   ```bash
+   # Manual trigger with tag parameter
+   # Or webhook-based automatic trigger
+   ```
+
+### ArgoCD GitOps Deployment
+
+1. **Install ArgoCD**
+   ```bash
+   bash k8s/argocd_installation.sh
+   ```
+
+2. **Create ArgoCD Application**
+   ```bash
+   kubectl apply -f - <<EOF
+   apiVersion: argoproj.io/v1alpha1
+   kind: Application
+   metadata:
+     name: drogon-app
+     namespace: argocd
+   spec:
+     project: default
+     source:
+       repoURL: https://github.com/suryanshvermaa/my-fastest-drogon-app-cpp
+       targetRevision: main
+       path: k8s
+     destination:
+       server: https://kubernetes.default.svc
+       namespace: drogon-project
+     syncPolicy:
+       automated:
+         prune: true
+         selfHeal: true
+   EOF
+   ```
+
+3. **Access ArgoCD UI**
+   ```bash
+   kubectl port-forward svc/argocd-server -n argocd 8080:443
+   # Open: https://localhost:8080
    ```
 
 ## 🔄 Development Workflow
 
-### Adding New Endpoints
+### Adding New API Endpoints
 
-1. **Update Controller Header** (`controllers/api_v1_User.h`):
+1. **Define route in controller header** (`src/controllers/api_v1_User.h`):
    ```cpp
-   METHOD_ADD(User::newMethod, "/newEndpoint", Post);
-   void newMethod(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback);
+   METHOD_ADD(User::newEndpoint, "/newPath", Post, "auth");
+   void newEndpoint(const HttpRequestPtr& req, 
+                    std::function<void (const HttpResponsePtr &)> &&callback);
    ```
 
-2. **Implement Controller Method** (`controllers/api_v1_User.cc`):
+2. **Implement method** (`src/controllers/api_v1_User.cc`):
    ```cpp
-   void User::newMethod(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback) {
-       // Implementation here
+   void User::newEndpoint(const HttpRequestPtr& req, 
+                          std::function<void (const HttpResponsePtr &)> &&callback) {
+       try {
+           auto json = req->getJsonObject();
+           // Your logic here
+           
+           Json::Value response;
+           response["status"] = "success";
+           auto resp = HttpResponse::newHttpJsonResponse(response);
+           callback(resp);
+       } catch (const std::exception &e) {
+           auto resp = HttpResponse::newHttpResponse();
+           resp->setStatusCode(k500InternalServerError);
+           resp->setBody(e.what());
+           callback(resp);
+       }
    }
    ```
 
-3. **Rebuild and Test**:
+3. **Rebuild and test**:
    ```bash
    cd build
    make -j$(nproc)
    ./my_drogon_app
    ```
 
-### Database Model Changes
+### Creating New Database Models
 
-1. **Update `models/model.json`** with new table definitions
-2. **Generate new model files**:
-   ```bash
-   drogon_ctl create model -c models/model.json
+1. **Update database schema** (`init.sql`):
+   ```sql
+   CREATE TABLE new_table (
+       id SERIAL PRIMARY KEY,
+       field1 VARCHAR(255) NOT NULL,
+       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   );
    ```
+
+2. **Update model configuration** (`src/models/model.json`):
+   ```json
+   {
+     "tables": ["users", "todos", "new_table"]
+   }
+   ```
+
+3. **Generate model classes**:
+   ```bash
+   drogon_ctl create model src/models/model.json
+   ```
+
+4. **Update CMakeLists.txt**:
+   ```cmake
+   add_executable(${PROJECT_NAME}
+       src/models/NewTable.cc
+       # ... other files
+   )
+   ```
+
+### Hot Reload Development
+
+For development with automatic rebuild:
+
+```bash
+# Use the dev entrypoint script
+docker-compose -f docker-compose.dev.yml up
+
+# Or use file watchers
+while inotifywait -r -e modify,create,delete src/; do
+    cd build && make -j$(nproc) && ./my_drogon_app
+done
+```
 3. **Update database schema** in `init.sql`
 4. **Rebuild the application**
 

@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name:  drogon-app-db-svc
+spec:
+  selector:
+    name:  drogon-app-db
+  type:  ClusterIP
+  ports:
+    - port: 5432
+      targetPort: 5432

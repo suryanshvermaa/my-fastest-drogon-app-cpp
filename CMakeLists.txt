@@ -13,6 +13,7 @@ add_executable(${PROJECT_NAME}
     src/main.cc
     src/controllers/api_v1_User.cc
     src/controllers/api_v1_todos.cc
+    src/controllers/health.cc
     src/models/Users.cc
     src/models/Todos.cc
     dependencies/jwt-cpp

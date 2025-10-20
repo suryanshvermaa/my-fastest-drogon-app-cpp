@@ -1,7 +1,8 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name:  drogon-app-db-svc
+  name:  postgres
+  namespace: drogon-project
 spec:
   selector:
     name:  drogon-app-db

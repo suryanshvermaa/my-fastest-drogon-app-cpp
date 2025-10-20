@@ -1,0 +1,13 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name:  drogon-app-svc
+  namespace:  drogon-project
+spec:
+  selector:
+    app:  drogon-app
+  type:  ClusterIP
+  ports:
+  - name:  drogon-app-port
+    port:  3001
+    targetPort:  3001

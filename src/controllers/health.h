@@ -8,7 +8,7 @@ class health : public drogon::HttpController<health>
 {
   public:
     METHOD_LIST_BEGIN
-    METHOD_ADD(health::health, "/", Get); // path is /health/{arg2}/{arg1}
+    METHOD_ADD(health::healthCheck, "/", Get);
     METHOD_LIST_END
-    void health(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback);
+    void healthCheck(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback);
 };

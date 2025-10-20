@@ -1,25 +1,23 @@
 #include "health.h"
+#include<jsoncpp/json/json.h>
 
-void health::health(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback){
-    try
-    {
+using namespace std;
+
+void health::healthCheck(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback){
+    try {
         Json::Value res;
-        res["sucess"]=true;
-        res["message"]="healthy";
+        res["success"] = true;
+        res["message"] = "healthy";
         auto resp = HttpResponse::newHttpJsonResponse(res);
         resp->setStatusCode(k200OK);
         callback(resp);
-        return;
-    }
-    catch(const std::exception& e)
-    {
+    } catch (const std::exception &e) {
         Json::Value res;
-        res["message"]=e.what();
-        res["success"]=false;
-        auto resp=HttpResponse::newHttpJsonResponse(res);
+        res["success"] = false;
+        res["message"] = e.what();
+        auto resp = HttpResponse::newHttpJsonResponse(res);
         resp->setStatusCode(k500InternalServerError);
         callback(resp);
-        return;
     }
     
 }

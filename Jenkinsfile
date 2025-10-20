@@ -58,7 +58,7 @@ pipeline{
             steps{
                 script{
                     sh "pushing to github..."
-                    withCredentials([gitUsernamePassword(credentialsId:'github',gitToolName:'Default')]){
+                    withCredentials([gitUsernamePassword(credentialsId:'Github-Cred',gitToolName:'Default')]){
                         sh "git add ."
                         sh "git commit -m \"updated k8s-deployment image tag\""
                         sh "git push origin main"

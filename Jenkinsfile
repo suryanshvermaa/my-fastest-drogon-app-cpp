@@ -49,7 +49,7 @@ pipeline{
             steps{
                 script{
                     dir("./k8/app"){
-                        sh "sed -i 's|image: suryanshvermaa/drogon-app.*|image: suryanshvermaa/drogon-app:${parms.BACKEND_DOCKER_TAG}|' deployment.yaml"
+                        sh "sed -i 's|image: suryanshvermaa/drogon-app.*|image: suryanshvermaa/drogon-app:${params.BACKEND_DOCKER_TAG}|' deployment.yaml"
                     }
                 }
             }

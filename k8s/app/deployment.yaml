@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: drogon-app
-        image: suryanshvermaa/drogon-app:1.0.0
+        image: suryanshvermaa/drogon-app:1.0.1
         ports:
         - containerPort: 3001
         resources:

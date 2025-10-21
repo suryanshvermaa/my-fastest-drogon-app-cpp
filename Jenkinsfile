@@ -41,7 +41,7 @@ pipeline{
                     sh "docker login -u ${env.dockerUser} -p ${env.dockerPass}"
                     sh "docker tag my-app ${env.dockerUser}/drogon-app:${parms.BACKEND_DOCKER_TAG}"
                     sh "docker push ${env.dockerUser}/drogon-app:${parms.BACKEND_DOCKER_TAG}"
-                    echo "cloning code successful."
+                    echo "pushing to dockerhub successful."
                 }
             }
         }

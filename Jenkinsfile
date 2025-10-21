@@ -39,8 +39,8 @@ pipeline{
                 echo "pushing code to dockerhub..."
                 withCredentials([usernamePassword(credentialsId:"dockerhubCredentials",passwordVariable:"dockerPass",usernameVariable:"dockerUser")]){
                     sh "docker login -u ${env.dockerUser} -p ${env.dockerPass}"
-                    sh "docker tag my-app ${env.dockerUser}/drogon-app:${parms.BACKEND_DOCKER_TAG}"
-                    sh "docker push ${env.dockerUser}/drogon-app:${parms.BACKEND_DOCKER_TAG}"
+                    sh "docker tag my-app ${env.dockerUser}/drogon-app:${params.BACKEND_DOCKER_TAG}"
+                    sh "docker push ${env.dockerUser}/drogon-app:${params.BACKEND_DOCKER_TAG}"
                     echo "pushing to dockerhub successful."
                 }
             }

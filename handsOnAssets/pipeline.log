@@ -1,0 +1,575 @@
+Started by user Suryansh Verma
+Obtained Jenkinsfile from git https://github.com/suryanshvermaa/my-fastest-drogon-app-cpp.git
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on Jenkins in /var/lib/jenkins/workspace/drogon-project
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+No credentials specified
+ > git rev-parse --resolve-git-dir /var/lib/jenkins/workspace/drogon-project/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url https://github.com/suryanshvermaa/my-fastest-drogon-app-cpp.git # timeout=10
+Fetching upstream changes from https://github.com/suryanshvermaa/my-fastest-drogon-app-cpp.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.43.0'
+ > git fetch --tags --force --progress -- https://github.com/suryanshvermaa/my-fastest-drogon-app-cpp.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+Checking out Revision 3e0f7f116a78ae243e1eb51c5438bac3650cda46 (refs/remotes/origin/main)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 3e0f7f116a78ae243e1eb51c5438bac3650cda46 # timeout=10
+Commit message: "Fix directory path in k8s deployment tag update to correctly reference k8s/app"
+ > git rev-list --no-walk 3e0f7f116a78ae243e1eb51c5438bac3650cda46 # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Validate parameters)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Workspace Cleanup)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] cleanWs
+[WS-CLEANUP] Deleting project workspace...
+[WS-CLEANUP] Deferred wipeout is used...
+[WS-CLEANUP] done
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (cloning)
+[Pipeline] echo
+cloning code...
+[Pipeline] git
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+No credentials specified
+Cloning the remote Git repository
+Cloning repository https://github.com/suryanshvermaa/my-fastest-drogon-app-cpp.git
+ > git init /var/lib/jenkins/workspace/drogon-project # timeout=10
+Fetching upstream changes from https://github.com/suryanshvermaa/my-fastest-drogon-app-cpp.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.43.0'
+ > git fetch --tags --force --progress -- https://github.com/suryanshvermaa/my-fastest-drogon-app-cpp.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git config remote.origin.url https://github.com/suryanshvermaa/my-fastest-drogon-app-cpp.git # timeout=10
+ > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+Avoid second fetch
+ > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+Checking out Revision 3e0f7f116a78ae243e1eb51c5438bac3650cda46 (refs/remotes/origin/main)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 3e0f7f116a78ae243e1eb51c5438bac3650cda46 # timeout=10
+ > git branch -a -v --no-abbrev # timeout=10
+ > git checkout -b main 3e0f7f116a78ae243e1eb51c5438bac3650cda46 # timeout=10
+Commit message: "Fix directory path in k8s deployment tag update to correctly reference k8s/app"
+[Pipeline] echo
+cloning code successful.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (building)
+[Pipeline] echo
+building code...
+[Pipeline] sh
++ docker build -t my-app .
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 2.39kB done
+#1 DONE 0.0s
+
+#2 [auth] library/ubuntu:pull token for registry-1.docker.io
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/ubuntu:22.04
+#3 DONE 1.9s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 703B done
+#4 DONE 0.0s
+
+#5 [builder  1/10] FROM docker.io/library/ubuntu:22.04@sha256:09506232a8004baa32c47d68f1e5c307d648fdd59f5e7eaa42aaf87914100db3
+#5 resolve docker.io/library/ubuntu:22.04@sha256:09506232a8004baa32c47d68f1e5c307d648fdd59f5e7eaa42aaf87914100db3 0.0s done
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 130.05kB 0.0s done
+#6 DONE 0.0s
+
+#7 [runtime  5/10] COPY --from=builder /app/build/my_drogon_app /app/my_drogon_app
+#7 CACHED
+
+#8 [builder  6/10] COPY src/ /app/src/
+#8 CACHED
+
+#9 [runtime  3/10] RUN useradd -m -u 1000 appuser
+#9 CACHED
+
+#10 [builder 10/10] RUN mkdir -p /app/build  && cd /app/build  && cmake .. -DCMAKE_BUILD_TYPE=Release  && make -j"$(nproc)"
+#10 CACHED
+
+#11 [runtime  2/10] RUN apt-get update && apt-get install -y   libpq5   libssl3   libuuid1   zlib1g   libjsoncpp-dev   ca-certificates   curl  && rm -rf /var/lib/apt/lists/*
+#11 CACHED
+
+#12 [builder  4/10] WORKDIR /app
+#12 CACHED
+
+#13 [builder  9/10] RUN sed -i 's/\r$//' /app/dependencies.sh && bash dependencies.sh
+#13 CACHED
+
+#14 [builder  2/10] RUN apt-get update && apt-get install -y     build-essential     cmake     git     libpq-dev     libssl-dev     zlib1g-dev     libjsoncpp-dev     libboost-all-dev     uuid-dev  && rm -rf /var/lib/apt/lists/*
+#14 CACHED
+
+#15 [builder  8/10] COPY config.docker.json /app/config.json
+#15 CACHED
+
+#16 [runtime  7/10] COPY --from=builder /usr/local/lib/libdrogon* /usr/local/lib/
+#16 CACHED
+
+#17 [runtime  4/10] WORKDIR /app
+#17 CACHED
+
+#18 [runtime  9/10] RUN ldconfig
+#18 CACHED
+
+#19 [builder  3/10] RUN git clone https://github.com/drogonframework/drogon.git /tmp/drogon  && cd /tmp/drogon  && git checkout v1.9.0  && git submodule update --init --recursive  && mkdir build && cd build  && cmake .. -DCMAKE_BUILD_TYPE=Release  && make -j"$(nproc)"  && make install  && ldconfig  && rm -rf /tmp/drogon
+#19 CACHED
+
+#20 [runtime  8/10] COPY --from=builder /usr/local/lib/libtrantor* /usr/local/lib/
+#20 CACHED
+
+#21 [builder  7/10] COPY dependencies.sh /app/dependencies.sh
+#21 CACHED
+
+#22 [builder  5/10] COPY CMakeLists.txt /app/CMakeLists.txt
+#22 CACHED
+
+#23 [runtime  6/10] COPY --from=builder /app/config.json /app/config.json
+#23 CACHED
+
+#24 [runtime 10/10] RUN mkdir -p /app/uploads/tmp && chown -R appuser:appuser /app
+#24 CACHED
+
+#25 exporting to image
+#25 exporting layers done
+#25 exporting manifest sha256:6c57c3276082cf7eae5325a56990e7829a65ab0b9d01fd97492814be35cfd496 done
+#25 exporting config sha256:fc14ee5519674db57b6327115cac9644f8e81638d29335ab56fbc66058b444e5 done
+#25 exporting attestation manifest sha256:2e62f47bfb2df033fe7487bf471f22d105452dd2a77a057b9b2da38d8d668b9d 0.0s done
+#25 exporting manifest list sha256:f72793fb186211eeafac8289ec75e15193841d9ed792eb814c12e02a7b815c73
+#25 exporting manifest list sha256:f72793fb186211eeafac8289ec75e15193841d9ed792eb814c12e02a7b815c73 0.0s done
+#25 naming to docker.io/library/my-app:latest done
+#25 unpacking to docker.io/library/my-app:latest 0.0s done
+#25 DONE 0.2s
+[Pipeline] echo
+building code successful.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (pushing code to dockerhub...)
+[Pipeline] echo
+pushing code to dockerhub...
+[Pipeline] withCredentials
+Masking supported pattern matches of $dockerPass
+[Pipeline] {
+[Pipeline] sh
+Warning: A secret was passed to "sh" using Groovy String interpolation, which is insecure.
+		 Affected argument(s) used the following variable(s): [dockerPass]
+		 See https://jenkins.io/redirect/groovy-string-interpolation for details.
++ docker login -u suryanshvermaa -p ****
+WARNING! Using --password via the CLI is insecure. Use --password-stdin.
+Login Succeeded
+[Pipeline] sh
++ docker tag my-app suryanshvermaa/drogon-app:1.0.1
+[Pipeline] sh
++ docker push suryanshvermaa/drogon-app:1.0.1
+The push refers to repository [docker.io/suryanshvermaa/drogon-app]
+021db1cf1713: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Waiting
+af6eca94c810: Waiting
+ef721a3bf863: Waiting
+0383013f1de5: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Waiting
+af6eca94c810: Waiting
+ef721a3bf863: Waiting
+0383013f1de5: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+021db1cf1713: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Waiting
+af6eca94c810: Waiting
+ef721a3bf863: Waiting
+0383013f1de5: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Waiting
+af6eca94c810: Waiting
+ef721a3bf863: Waiting
+0383013f1de5: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Waiting
+af6eca94c810: Waiting
+ef721a3bf863: Waiting
+0383013f1de5: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Waiting
+af6eca94c810: Waiting
+ef721a3bf863: Waiting
+0383013f1de5: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Waiting
+af6eca94c810: Waiting
+ef721a3bf863: Waiting
+0383013f1de5: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+af6eca94c810: Waiting
+ef721a3bf863: Waiting
+0383013f1de5: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Waiting
+af6eca94c810: Waiting
+ef721a3bf863: Waiting
+0383013f1de5: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+0eafa40f8066: Waiting
+ef721a3bf863: Waiting
+0383013f1de5: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Waiting
+af6eca94c810: Waiting
+af6eca94c810: Waiting
+ef721a3bf863: Waiting
+0383013f1de5: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Waiting
+af6eca94c810: Waiting
+ef721a3bf863: Waiting
+0383013f1de5: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+0eafa40f8066: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Waiting
+af6eca94c810: Waiting
+ef721a3bf863: Waiting
+0383013f1de5: Waiting
+021db1cf1713: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Waiting
+af6eca94c810: Waiting
+ef721a3bf863: Waiting
+0383013f1de5: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+af6eca94c810: Waiting
+ef721a3bf863: Waiting
+0383013f1de5: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Waiting
+af6eca94c810: Waiting
+ef721a3bf863: Waiting
+0383013f1de5: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Waiting
+af6eca94c810: Waiting
+ef721a3bf863: Waiting
+0383013f1de5: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+91351e01eeaf: Waiting
+af6eca94c810: Waiting
+ef721a3bf863: Waiting
+0383013f1de5: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+4322526a1503: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Waiting
+af6eca94c810: Waiting
+ef721a3bf863: Waiting
+0383013f1de5: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Waiting
+af6eca94c810: Waiting
+ef721a3bf863: Waiting
+0383013f1de5: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Waiting
+af6eca94c810: Waiting
+ef721a3bf863: Waiting
+0383013f1de5: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Waiting
+af6eca94c810: Waiting
+ef721a3bf863: Waiting
+0383013f1de5: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Waiting
+af6eca94c810: Waiting
+ef721a3bf863: Layer already exists
+0383013f1de5: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Waiting
+af6eca94c810: Waiting
+0383013f1de5: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Waiting
+af6eca94c810: Waiting
+0383013f1de5: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+4322526a1503: Waiting
+91351e01eeaf: Layer already exists
+af6eca94c810: Waiting
+0383013f1de5: Layer already exists
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+0eafa40f8066: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+4322526a1503: Waiting
+af6eca94c810: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+0eafa40f8066: Waiting
+6cfcd4863d19: Waiting
+d296dcc0d5b6: Waiting
+021db1cf1713: Waiting
+4322526a1503: Waiting
+af6eca94c810: Waiting
+c038eb42a407: Waiting
+f804a3fa69a6: Waiting
+af6eca94c810: Layer already exists
+c038eb42a407: Layer already exists
+f804a3fa69a6: Layer already exists
+0eafa40f8066: Waiting
+6cfcd4863d19: Layer already exists
+d296dcc0d5b6: Layer already exists
+021db1cf1713: Layer already exists
+4322526a1503: Layer already exists
+0eafa40f8066: Pushed
+1.0.1: digest: sha256:f72793fb186211eeafac8289ec75e15193841d9ed792eb814c12e02a7b815c73 size: 856
+[Pipeline] echo
+pushing to dockerhub successful.
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (changing k8s-deployment tag)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] dir
+Running in /var/lib/jenkins/workspace/drogon-project/k8s/app
+[Pipeline] {
+[Pipeline] sh
++ sed -i s|image: suryanshvermaa/drogon-app.*|image: suryanshvermaa/drogon-app:1.0.1| deployment.yaml
+[Pipeline] }
+[Pipeline] // dir
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (pushing to github)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] echo
+pushing to github...
+[Pipeline] withCredentials
+ > git --version # timeout=10
+ > git --version # 'git version 2.43.0'
+Masking supported pattern matches of $GIT_PASSWORD or $GIT_ASKPASS
+[Pipeline] {
+[Pipeline] sh
++ git add .
+[Pipeline] sh
++ git commit -m updated k8s-deployment image tag
+[main 7ad40fe] updated k8s-deployment image tag
+ Committer: Jenkins <jenkins@DESKTOP-GA1RLAH.localdomain>
+Your name and email address were configured automatically based
+on your username and hostname. Please check that they are accurate.
+You can suppress this message by setting them explicitly. Run the
+following command and follow the instructions in your editor to edit
+your configuration file:
+
+    git config --global --edit
+
+After doing this, you may fix the identity used for this commit with:
+
+    git commit --amend --reset-author
+
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+[Pipeline] sh
++ git push origin main
+To https://github.com/suryanshvermaa/my-fastest-drogon-app-cpp.git
+   3e0f7f1..7ad40fe  main -> main
+[Pipeline] echo
+pushing to github successfully.
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] echo
+deployment done.
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS

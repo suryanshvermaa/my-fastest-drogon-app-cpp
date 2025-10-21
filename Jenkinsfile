@@ -48,7 +48,7 @@ pipeline{
         stage("changing k8s-deployment tag"){
             steps{
                 script{
-                    dir("./k8/app"){
+                    dir("./k8s/app"){
                         sh "sed -i 's|image: suryanshvermaa/drogon-app.*|image: suryanshvermaa/drogon-app:${params.BACKEND_DOCKER_TAG}|' deployment.yaml"
                     }
                 }

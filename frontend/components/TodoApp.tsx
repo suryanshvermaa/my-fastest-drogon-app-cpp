@@ -27,7 +27,7 @@ export function TodoApp() {
   const loadTodos = async () => {
     try {
       setLoading(true)
-      const res=await axios.get(`${process.env.NEXT_BACKEND_URL}/api/v1/todos/getAll`,{
+      const res=await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/todos/getAll`,{
         headers:{
           Authorization:`Bearer ${localStorage.getItem("token")}`
         }
@@ -42,7 +42,7 @@ export function TodoApp() {
 
   const addTodo = async (title: string) => {
     try {
-      const newTodo = await axios.post(`${process.env.NEXT_BACKEND_URL}/api/v1/todos/create`,{title,completed:false},{
+      const newTodo = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/todos/create`,{title,completed:false},{
         headers:{
           Authorization:`Bearer ${localStorage.getItem("token")}`
         }
@@ -55,7 +55,7 @@ export function TodoApp() {
 
   const updateTodo = async (id: number, updates: Partial<Todo>) => {
     try {
-      await axios.put(`${process.env.NEXT_BACKEND_URL}/api/v1/todos/update/${id}`,{title:updates.title||todos.find((todo)=>todo.id=id)?.title,completed:updates.completed||todos.find((todo)=>todo.id=id)?.completed},{
+      await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/todos/update/${id}`,{title:updates.title||todos.find((todo)=>todo.id=id)?.title,completed:updates.completed||todos.find((todo)=>todo.id=id)?.completed},{
         headers:{
           Authorization:`Bearer ${localStorage.getItem("token")}`
         }
@@ -68,7 +68,7 @@ export function TodoApp() {
 
   const deleteTodo = async (id: number) => {
     try {
-      await axios.delete(`${process.env.NEXT_BACKEND_URL}/api/v1/todos/delete/${id}`,{
+      await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/todos/delete/${id}`,{
         headers:{
           Authorization:`Bearer ${localStorage.getItem("token")}`
         }

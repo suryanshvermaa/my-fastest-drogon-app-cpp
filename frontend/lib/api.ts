@@ -11,7 +11,7 @@ async function fetchJSON<T = unknown>(path: string, init?: RequestInit): Promise
     // 1) .env override
     (import.meta as any).env?.VITE_API_URL?.replace(/\/$/, ""),
     // 2) common local-dev default
-    `${process.env.NEXT_BACKEND_URL}/api`,
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api`,
     // 3) same origin (preview proxy)
     `${window.location.origin}/api`,
   ].filter(Boolean)

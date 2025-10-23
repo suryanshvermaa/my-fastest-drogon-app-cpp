@@ -61,7 +61,7 @@ export default function SignupForm() {
     setIsLoading(true)
 
     try {
-      const response = await axios.post("http://localhost:3001/api/v1/User/signup", {
+      const response = await axios.post(`${process.env.NEXT_BACKEND_URL}/api/v1/User/signup`, {
         name: formData.name,
         email: formData.email,
         password: formData.password

@@ -25,7 +25,7 @@ export default function LoginForm() {
     setIsLoading(true)
 
     try {
-      const response = await axios.post("http://localhost:3001/api/v1/User/login", {
+      const response = await axios.post(`${process.env.NEXT_BACKEND_URL}/api/v1/User/login`, {
         email,password
       })
       localStorage.setItem("token",response.data.data.token);
